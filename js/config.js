@@ -28,7 +28,7 @@ window.SITE = {
   nameIsFinal: true,
   signupEndpoint: "https://buttondown.com/api/emails/embed-subscribe/realmsunderfoot",
   listMessages: {
-    pending: { title: "One more step", text: "Check your inbox and click the link in the email we just sent. Then you are on the list.", quest: "Check your inbox" },
+    pending: { title: "One more step", text: "One email with a link is on its way. You are on the list once you click it.", quest: "Check your inbox" },
     confirmed: { title: "You are on the list", text: "We will write when there is something to play.", quest: "On the list" },
   },
   soundAvailable: true,
