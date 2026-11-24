@@ -129,8 +129,10 @@
     </div>
     <div class="signup-row">
       <!-- The list is on Buttondown, which takes an ordinary form post. The same address is in js/config.js
-           (signupEndpoint); change both together. Extra fields are named metadata__<key>. -->
-      <form class="card signup" id="signup-form" action="https://buttondown.com/api/emails/embed-subscribe/realmsunderfoot" method="post" target="_blank" rel="noopener" novalidate>
+           (signupEndpoint); change both together. Extra fields are named metadata__<key>.
+           Buttondown then sends the visitor back here with ?list=pending, and with ?list=confirmed
+           once they click the link in its email. -->
+      <form class="card signup" id="signup-form" action="https://buttondown.com/api/emails/embed-subscribe/realmsunderfoot" method="post" novalidate>
         <p>Leave an email and we will write when there is something to play. Today the game runs on Android phones that support ARCore, and it needs real green space to play in.</p>
         <div class="field-pair">
           <div class="field">
@@ -158,13 +160,20 @@
         </div>
         <!-- Buttondown's own form example carries this hidden field. -->
         <input type="hidden" name="embed" value="1">
-        <p class="notice" id="signup-notice">We will use your email only to tell you about this game: when there is something to play, and occasional progress. We will not share it. Every message has an unsubscribe link. The list is run by Buttondown, which emails you a link to confirm. Sent by Realms Underfoot, 15 Lewis Rd, Guelph, Ontario. Contact: <a href="mailto:realmsunderfoot@gmail.com">realmsunderfoot@gmail.com</a>.</p>
+        <p class="notice" id="signup-notice">We will use your email only to tell you about this game: when there is something to play, and occasional progress. We will not share it. Every message has an unsubscribe link. Realms Underfoot, Guelph, Ontario, <a href="mailto:realmsunderfoot@gmail.com">realmsunderfoot@gmail.com</a>.</p>
         <button class="btn btn-gold" type="submit" id="signup-send">Put me on the list</button>
         <div class="result" id="signup-result" role="status" aria-live="polite" hidden>
-          <p class="result-title">Check your inbox</p>
-          <p>Buttondown, the service that runs the list, has opened in a new tab. It emails you a link. You are on the list once you click it.</p>
+          <p class="result-title">Not open yet</p>
+          <p>Nothing was sent and nothing was saved. Sign-ups are closed for the moment.</p>
         </div>
       </form>
+      <!-- Shown in place of the form when Buttondown sends the visitor back with ?list=pending or ?list=confirmed.
+           The words are in js/config.js (listMessages). -->
+      <div class="card signup-done" id="signup-done" role="status" tabindex="-1" hidden>
+        <p class="done-title" id="signup-done-title"></p>
+        <p id="signup-done-text"></p>
+        <p class="fine"><a href="#signup" id="signup-again">Add another address</a></p>
+      </div>
       <div class="guard-post" aria-hidden="true">
         <div class="perch" data-perch-bruiser></div>
       </div>
@@ -176,11 +185,13 @@
       <h2>Updates</h2>
       <div class="perch" data-perch="updates" aria-hidden="true"></div>
     </div>
-    <!-- Built from data/updates.json: date, title, two or three sentences. -->
-    <ol class="updates" id="updates-list" aria-live="off">
-      <li class="card update update-loading">Loading the updates.</li>
-    </ol>
-    <noscript><p class="card">The updates list needs JavaScript. The entries are in data/updates.json.</p></noscript>
+    <!-- One broad card for now. Stewart's rule: no development details here. -->
+    <div class="updates">
+      <div class="card update">
+        <h3>Hush for now</h3>
+        <p>The proof of concept works, and it looks great. Now we are building the game out. The details are secret for the moment, and people on the list hear first.</p>
+      </div>
+    </div>
     <div class="egg-spot" data-egg-spot="2" aria-hidden="true"></div>
   </section>
 
@@ -206,8 +217,6 @@
   <div class="end-text">
     <p class="end-line">That is the whole page.</p>
     <p class="fine">Every creature here is the model used in the game, made by the project's own asset pipeline.</p>
-    <p class="fine">Fonts: Bangers and Oswald Bold, SIL Open Font License 1.1. 3D drawn with three.js, MIT License.</p>
-    <address class="fine contact"><span data-game-name>Realms Underfoot</span><br>15 Lewis Rd, Guelph, Ontario<br><a href="mailto:realmsunderfoot@gmail.com">realmsunderfoot@gmail.com</a></address>
     <p class="fine"><a href="#top">Back to the top</a></p>
   </div>
   <div class="ignis-zone" aria-hidden="true">

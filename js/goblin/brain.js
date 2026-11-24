@@ -103,9 +103,13 @@ export class Brain {
     const visits = Number(store.get("visits") || 0);
     store.set("visits", String(visits + 1));
     this.visits = visits;
+    // Back from the list service (js/page.js sets listState): that is what he talks about first.
+    const list = this.site.listState;
     setTimeout(() => {
-      if (this.say(visits ? "comeBack" : "arrive", { p: 2 }) && this.stage) this.stage.react("T", "wave");
-    }, 900);
+      const key = list === "confirmed" ? "listConfirmed" : list === "pending" ? "listPending" : visits ? "comeBack" : "arrive";
+      if (this.say(key, { p: list ? 3 : 2 }) && this.stage) this.stage.react("T", list === "confirmed" ? "cheer" : "wave");
+      if (list) this.setMood("T", list === "confirmed" ? "Delighted" : "Friendly", list === "confirmed" ? 1 : 0.85, "var(--heal)", true);
+    }, list ? 1500 : 900);
     if (!this.stage) setTimeout(() => this.say("noWebgl", { p: 1, once: true }), 9000);
     this.onScroll();
   }
@@ -151,7 +155,8 @@ export class Brain {
     });
     on(document, "site:submit", (e) => {
       this.typingUntil = 0;
-      if (e.detail.valid) { this.say(e.detail.sent ? "submit" : "submitClosed", { p: 3, now: true }); this.setMood("T", "Friendly", 0.85, "var(--heal)", true); if (this.stage) this.stage.react("T", "shrug"); }
+      if (e.detail.valid && e.detail.sent) return; // the page is leaving for the list service; he speaks when it comes back
+      if (e.detail.valid) { this.say("submitClosed", { p: 3, now: true }); this.setMood("T", "Friendly", 0.85, "var(--heal)", true); if (this.stage) this.stage.react("T", "shrug"); }
       else this.say("submitBad", { p: 3, now: true });
     });
 

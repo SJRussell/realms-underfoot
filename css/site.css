@@ -174,7 +174,12 @@ label { display: block; font: 700 15px/1.2 var(--label); text-transform: upperca
 .pick:has(input:checked) { border-color: var(--gold); box-shadow: 0 0 0 4px var(--glow); }
 .pick:has(input:focus-visible) { outline: 3px solid var(--gold); outline-offset: 3px; }
 .pick input { width: 20px; height: 20px; min-height: 0; padding: 0; margin: 0; flex: none; accent-color: var(--gold-deep); box-shadow: none; }
-.contact { font-style: normal; margin: 0 0 .9em; }
+/* What takes the form's place when the visitor comes back from the list service. */
+.signup[hidden], .signup-done[hidden] { display: none; }
+.signup-done { border-color: var(--gold); }
+.signup-done:focus { outline: none; }
+.signup-done p { margin: 0 0 .7em; }
+.done-title { font: 700 clamp(26px, 3.4vw, 36px)/1.1 var(--label); text-transform: uppercase; color: var(--accent); }
 input { width: 100%; min-height: 52px; padding: 10px 14px; font: 18px var(--body); color: var(--text); background: var(--slot); border: 2px solid var(--line-soft); border-radius: 12px; }
 input::placeholder { color: var(--muted); opacity: .7; }
 input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 4px var(--glow); }
@@ -190,10 +195,9 @@ input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 4px va
 .guard-post { position: relative; min-height: 240px; align-self: stretch; }
 .guard-post .perch { position: absolute; left: 42%; bottom: 6px; width: 10px; height: clamp(170px, 30vh, 270px); }
 
-.updates { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; max-width: 760px; margin-left: auto; }
-.update time { display: block; font: 700 14px/1 var(--label); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+.updates { display: grid; gap: 14px; }
 .update h3 { color: var(--text); margin-bottom: 8px; }
-.update p { margin: 0; }
+.update p { margin: 0; font-size: clamp(17px, 1.6vw, 20px); max-width: 46em; }
 
 .feeds-slot { display: grid; grid-template-columns: 200px 1fr; gap: 20px; align-items: center; max-width: 760px; border-style: dashed; }
 .chest-spot { height: 150px; }

@@ -1,5 +1,5 @@
 /*
- * The page itself: the game's name, the updates list, the sign-up form and the two switches.
+ * The page itself: the game's name, the sign-up form and the two switches.
  * Nothing here needs 3D. The goblins load afterwards (js/goblin/main.js) and listen to the
  * same page events.
  */
@@ -53,32 +53,6 @@
     if (!turningOff) emit("site:talk", { on: true });
   });
 
-  // ----- updates, from data/updates.json -----
-  var MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  function niceDate(iso) {
-    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || "");
-    return m ? Number(m[3]) + " " + MONTHS[Number(m[2]) - 1] + " " + m[1] : String(iso || "");
-  }
-  var list = document.getElementById("updates-list");
-  function showUpdates(items) {
-    list.textContent = "";
-    items.slice().sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); }).forEach(function (u) {
-      var li = document.createElement("li"); li.className = "card update";
-      var time = document.createElement("time"); time.dateTime = u.date; time.textContent = niceDate(u.date);
-      var h = document.createElement("h3"); h.textContent = u.title;
-      var p = document.createElement("p"); p.textContent = u.text;
-      li.append(time, h, p); list.append(li);
-    });
-    if (!items.length) updatesFailed("No updates yet.");
-  }
-  function updatesFailed(msg) {
-    list.textContent = "";
-    var li = document.createElement("li"); li.className = "card update"; li.textContent = msg; list.append(li);
-  }
-  fetch(SITE.updatesUrl || "data/updates.json", { cache: "no-cache" })
-    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-    .then(showUpdates)
-    .catch(function () { updatesFailed("The updates could not be loaded. They are in data/updates.json."); });
 
   // ----- the sign-up form -----
   var form = document.getElementById("signup-form");
@@ -106,19 +80,42 @@
       return;
     }
     // The list is run by Buttondown, which takes an ordinary form post and refuses a fetch. So the
-    // browser sends the form itself, in a new tab, and this page stays open. The new tab matters:
-    // Buttondown sometimes shows a CAPTCHA or a correction there. The fields that go are the ones
-    // in the form: email, the hidden "embed", and each input named metadata__<key>.
+    // browser sends the form itself and the page goes with it. Buttondown may show a CAPTCHA or a
+    // correction, then sends the visitor back here with ?list=pending. The fields that go are the
+    // ones in the form: email, the hidden "embed", and each input named metadata__<key>.
     email.value = value;
     ["f-name", "f-city"].forEach(function (id) { var el = document.getElementById(id); if (el) el.value = el.value.trim(); });
-    form.action = SITE.signupEndpoint; form.method = "post"; form.target = "_blank";
-    result.hidden = false;
-    result.querySelector(".result-title").textContent = "Check your inbox";
-    result.querySelector("p:last-child").textContent = "Buttondown, the service that runs the list, has opened in a new tab. It emails you a link. You are on the list once you click it.";
-    quest.textContent = "Check your inbox";
+    form.action = SITE.signupEndpoint; form.method = "post"; form.removeAttribute("target");
     emit("site:submit", { valid: true, sent: true });
-    setTimeout(function () { form.reset(); }, 0);
   });
+
+  // ----- back from Buttondown: ?list=pending after the form, ?list=confirmed after the link in the email -----
+  var done = document.getElementById("signup-done");
+  var listState = null;
+  try { listState = new URLSearchParams(window.location.search).get("list"); } catch (e) { /* very old browser */ }
+  var words = (SITE.listMessages || {})[listState];
+  if (words && done) {
+    SITE.listState = listState; // the goblins read this when they start
+    document.getElementById("signup-done-title").textContent = words.title;
+    document.getElementById("signup-done-text").textContent = words.text;
+    form.hidden = true; done.hidden = false;
+    quest.textContent = words.quest;
+    // Take the marker out of the address bar, so a reload or a shared link starts clean.
+    try { window.history.replaceState(null, "", window.location.pathname + window.location.hash); } catch (e) { /* leave it */ }
+    var show = function () {
+      var band = document.getElementById("signup");
+      band.classList.add("seen");
+      var smooth = document.documentElement.style.scrollBehavior;
+      document.documentElement.style.scrollBehavior = "auto";
+      band.scrollIntoView({ block: "start" });
+      document.documentElement.style.scrollBehavior = smooth;
+      done.focus({ preventScroll: true });
+    };
+    if (document.readyState === "complete") show(); else window.addEventListener("load", show);
+    document.getElementById("signup-again").addEventListener("click", function (ev) {
+      ev.preventDefault(); done.hidden = true; form.hidden = false; quest.textContent = "Get on the list"; email.focus();
+    });
+  }
 
   // ----- sections ease in as they are reached -----
   var bands = document.querySelectorAll(".band");

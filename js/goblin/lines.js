@@ -86,13 +86,17 @@ export const LINES = {
     t("Cold feet? Mine are always cold. No boots."),
     t("Rubbed it out! Was it wrong? Was it a secret?"),
   ],
-  // The form went to the list. A letter with a link to click is on its way.
-  submit: [
-    t("You're on the list! Nearly. There's a letter coming. Click the thing in it."),
+  // Back from the list service after sending the form. A letter with a link to click is on its way.
+  listPending: [
+    t("Nearly on the list! There's a letter coming. Click the thing in it."),
     [["B", "Check your letters."], ["T", "He means your inbox. He means please."]],
     t("You pressed it! Something happened this time. Go and look in your inbox."),
-    t("Sent. Boss will be pleased. Boss is never pleased, but still."),
+  ],
+  // Back after clicking the link in that letter.
+  listConfirmed: [
+    t("You're on the list! Boss will be pleased. Boss is never pleased, but still."),
     [["T", "Another one for the list!"], ["B", "Don't count them. You can't count."]],
+    t("It's official. You're one of the ones who get told things."),
   ],
   // Only when the list has no destination (signupEndpoint is null in js/config.js).
   submitClosed: [
@@ -166,8 +170,8 @@ export const LINES = {
     t("Nothing to see. Really. It's a rectangle."),
   ],
   zoneUpdates: [
-    t("They write down everything they finish. We've never finished anything."),
-    t("Dates. Lists. That's how you know they're serious."),
+    t("Big secrets. We know all of them. We've forgotten most of them."),
+    t("Hush hush, Boss says. So we're hushing. This is us hushing."),
   ],
   zoneFeeds: [
     t("Locked. Don't ask us. We do boxes, not chests."),
