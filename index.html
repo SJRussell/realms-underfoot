@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Realms Underfoot · an outdoor AR game</title>
+<meta name="description" content="Realms Underfoot is a role-playing game you play outdoors through your phone. Creatures stand in the real park at their real size.">
+<!-- Share card: what a link to this page shows in a chat or a feed. It needs full addresses.
+     If the site moves, change the three addresses below. -->
+<link rel="canonical" href="https://sjrussell.github.io/realms-underfoot/">
+<meta property="og:url" content="https://sjrussell.github.io/realms-underfoot/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Realms Underfoot">
+<meta property="og:title" content="Realms Underfoot">
+<meta property="og:description" content="A role-playing game you play outside. Creatures stand in the real park at their real size. Get on the list.">
+<meta property="og:image" content="https://sjrussell.github.io/realms-underfoot/assets/share-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The name Realms Underfoot in gold lettering, beside a goblin from the game.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#07090a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f3ead2" media="(prefers-color-scheme: light)">
+<link rel="preload" href="assets/fonts/Oswald-Bold.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="preload" href="assets/fonts/Bangers.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="stylesheet" href="css/site.css">
+<!-- The game's name and the sign-up destination live in js/config.js. -->
+<script src="js/config.js"></script>
+<!-- three.js 0.187.0 is vendored under vendor/three (see DECISIONS.md). -->
+<script type="importmap">
+{ "imports": { "three": "./vendor/three/build/three.module.js", "three/addons/": "./vendor/three/addons/" } }
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the page</a>
+
+<!-- The 3D layer. It is decoration: everything on the page works without it. -->
+<canvas id="stage" aria-hidden="true"></canvas>
+<div id="shadow-pass" aria-hidden="true"></div>
+<div id="corner-perch" class="perch" aria-hidden="true"></div>
+
+<header class="hud" id="top">
+  <a class="hud-name" href="#top" aria-label="Realms Underfoot, top of the page"><img class="hud-mark" src="assets/icons/favicon.svg" alt="" width="30" height="30"><span class="hud-name-text" data-game-name>Realms Underfoot</span></a>
+  <a class="hud-quest" href="#signup"><span class="hud-quest-k">Quest</span> <span id="quest-text">Get on the list</span></a>
+  <div class="hud-buttons">
+    <!-- Shown by js/page.js when soundAvailable is true in js/config.js. -->
+    <button type="button" class="btn btn-glass btn-small" id="sound-toggle" aria-pressed="false" hidden>Sound <span class="state">off</span></button>
+    <button type="button" class="btn btn-glass btn-small" id="talk-toggle" aria-pressed="true">Goblins <span class="state">talking</span></button>
+  </div>
+</header>
+
+<!-- Keyboard and screen-reader handles for the creatures. Positioned over them by the 3D layer. -->
+<div id="actor-buttons">
+  <button type="button" class="actor-hit" id="hit-thrower" hidden>Poke the rock thrower</button>
+  <button type="button" class="actor-hit" id="hit-bruiser" hidden>Poke the bruiser</button>
+  <button type="button" class="actor-hit" id="hit-ignis" hidden>Poke the dragon</button>
+</div>
+
+<main id="main">
+
+  <section class="hero" id="hero" data-zone="hero">
+    <div class="hero-text">
+      <p class="chip" id="title-chip">In development</p>
+      <h1 class="title" data-wordmark><span class="wm-1">Realms</span> <span class="wm-2">Underfoot</span></h1>
+      <p class="tagline">A role-playing game you play outside.</p>
+      <p class="lede"><span data-game-name>Realms Underfoot</span> is a role-playing game you play outdoors, through your phone. Creatures stand in the real park at their real size: a goblin comes up to your waist, and the dragon is eight metres long.</p>
+      <p class="lede">You get through each encounter your own way. Sneak past, talk, fight, or think it through.</p>
+      <div class="cta">
+        <a class="btn btn-gold" href="#signup">Get on the list</a>
+        <a class="btn btn-glass" href="#ways">How it plays</a>
+      </div>
+      <p class="fine">For Android phones that support ARCore. Not out yet.</p>
+    </div>
+    <div class="hero-stage" aria-hidden="true">
+      <div class="perch" data-perch="hero"></div>
+      <div class="ground"></div>
+    </div>
+  </section>
+
+  <section class="band" id="ways" data-zone="ways">
+    <div class="band-head">
+      <h2>Four ways through</h2>
+      <div class="perch" data-perch="ways" aria-hidden="true"></div>
+    </div>
+    <ul class="ways">
+      <li class="card way" tabindex="0" data-way="sneak">
+        <h3>Sneak</h3>
+        <p>Crouch, keep quiet and stay out of sight. The game hears your microphone and knows when you duck.</p>
+      </li>
+      <li class="card way" tabindex="0" data-way="talk">
+        <h3>Talk</h3>
+        <p>Say it out loud. Flatter them, lie to them, threaten them or ask about the box. They answer.</p>
+      </li>
+      <li class="card way" tabindex="0" data-way="fight">
+        <h3>Fight</h3>
+        <p>Swing, block, and time a parry. Then watch for the rocks.</p>
+      </li>
+      <li class="card way" tabindex="0" data-way="think">
+        <h3>Think</h3>
+        <p>Some things cannot be beaten with a stick. One of them only moves when you are not looking at her.</p>
+      </li>
+    </ul>
+    <div class="egg-spot" data-egg-spot="0" aria-hidden="true"></div>
+  </section>
+
+  <section class="band" id="video" data-zone="video">
+    <div class="band-head band-head-flip">
+      <h2>See it</h2>
+      <div class="perch" data-perch="video" aria-hidden="true"></div>
+    </div>
+    <!-- PLACEHOLDER: VIDEO. One gameplay clip goes here. Stewart chooses it. No clip may show a stranger. -->
+    <div class="card video-slot" data-placeholder="video">
+      <div class="video-frame">
+        <span class="reticle" aria-hidden="true"></span>
+        <p class="slot-title">Gameplay video</p>
+        <p class="slot-note">Not chosen yet. It goes here.</p>
+      </div>
+    </div>
+    <div class="egg-spot egg-spot-right" data-egg-spot="1" aria-hidden="true"></div>
+  </section>
+
+  <section class="band" id="signup" data-zone="signup">
+    <div class="band-head">
+      <h2>Get on the list</h2>
+      <div class="perch" data-perch="signup" aria-hidden="true"></div>
+    </div>
+    <div class="signup-row">
+      <!-- The list is on Buttondown, which takes an ordinary form post. The same address is in js/config.js
+           (signupEndpoint); change both together. Extra fields are named metadata__<key>. -->
+      <form class="card signup" id="signup-form" action="https://buttondown.com/api/emails/embed-subscribe/realmsunderfoot" method="post" target="_blank" rel="noopener" novalidate>
+        <p>Leave an email and we will write when there is something to play. Today the game runs on Android phones that support ARCore, and it needs real green space to play in.</p>
+        <div class="field-pair">
+          <div class="field">
+            <label for="f-name">First name <span class="opt">optional</span></label>
+            <input id="f-name" name="metadata__first-name" type="text" autocomplete="given-name">
+          </div>
+          <div class="field">
+            <label for="f-email">Email</label>
+            <input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" required aria-describedby="f-email-err">
+            <p class="err" id="f-email-err" role="alert" hidden>That does not look like an email address.</p>
+          </div>
+        </div>
+        <div class="field-pair">
+          <div class="field">
+            <label for="f-city">City <span class="opt">optional</span></label>
+            <input id="f-city" name="metadata__city" type="text" autocomplete="address-level2">
+          </div>
+          <fieldset class="field choice">
+            <legend>Your phone <span class="opt">optional</span></legend>
+            <div class="picks">
+              <label class="pick"><input type="radio" name="metadata__phone" value="Android"> Android</label>
+              <label class="pick"><input type="radio" name="metadata__phone" value="iPhone"> iPhone</label>
+            </div>
+          </fieldset>
+        </div>
+        <!-- Buttondown's own form example carries this hidden field. -->
+        <input type="hidden" name="embed" value="1">
+        <p class="notice" id="signup-notice">We will use your email only to tell you about this game: when there is something to play, and occasional progress. We will not share it. Every message has an unsubscribe link. The list is run by Buttondown, which emails you a link to confirm. Sent by Realms Underfoot, 15 Lewis Rd, Guelph, Ontario. Contact: <a href="mailto:realmsunderfoot@gmail.com">realmsunderfoot@gmail.com</a>.</p>
+        <button class="btn btn-gold" type="submit" id="signup-send">Put me on the list</button>
+        <div class="result" id="signup-result" role="status" aria-live="polite" hidden>
+          <p class="result-title">Check your inbox</p>
+          <p>Buttondown, the service that runs the list, has opened in a new tab. It emails you a link. You are on the list once you click it.</p>
+        </div>
+      </form>
+      <div class="guard-post" aria-hidden="true">
+        <div class="perch" data-perch-bruiser></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="updates" data-zone="updates">
+    <div class="band-head band-head-flip">
+      <h2>Updates</h2>
+      <div class="perch" data-perch="updates" aria-hidden="true"></div>
+    </div>
+    <!-- Built from data/updates.json: date, title, two or three sentences. -->
+    <ol class="updates" id="updates-list" aria-live="off">
+      <li class="card update update-loading">Loading the updates.</li>
+    </ol>
+    <noscript><p class="card">The updates list needs JavaScript. The entries are in data/updates.json.</p></noscript>
+    <div class="egg-spot" data-egg-spot="2" aria-hidden="true"></div>
+  </section>
+
+  <section class="band" id="feeds" data-zone="feeds">
+    <div class="band-head">
+      <h2>Player feeds</h2>
+      <div class="perch" data-perch="feeds" aria-hidden="true"></div>
+    </div>
+    <!-- PLACEHOLDER: PLAYER FEEDS. Not built. Players' runs will show here later. -->
+    <div class="card feeds-slot" data-placeholder="feeds">
+      <div class="chest-spot" data-chest-spot aria-hidden="true"></div>
+      <div>
+        <p class="slot-title">Locked for now</p>
+        <p class="slot-note">Later, players' runs will show up here. It is not built yet.</p>
+      </div>
+    </div>
+    <div class="egg-spot egg-spot-right" data-egg-spot="3" aria-hidden="true"></div>
+  </section>
+
+</main>
+
+<footer class="end" id="end" data-zone="end">
+  <div class="end-text">
+    <p class="end-line">That is the whole page.</p>
+    <p class="fine">Every creature here is the model used in the game, made by the project's own asset pipeline.</p>
+    <p class="fine">Fonts: Bangers and Oswald Bold, SIL Open Font License 1.1. 3D drawn with three.js, MIT License.</p>
+    <address class="fine contact"><span data-game-name>Realms Underfoot</span><br>15 Lewis Rd, Guelph, Ontario<br><a href="mailto:realmsunderfoot@gmail.com">realmsunderfoot@gmail.com</a></address>
+    <p class="fine"><a href="#top">Back to the top</a></p>
+  </div>
+  <div class="ignis-zone" aria-hidden="true">
+    <div class="perch perch-ignis" data-ignis-spot></div>
+    <div class="perch perch-flee" data-perch="end"></div>
+  </div>
+</footer>
+
+<!-- Speech. The visible bubbles are decoration; the polite live region carries the words. -->
+<div id="bubbles" aria-hidden="true"></div>
+<div id="say-live" class="sr-only" role="status" aria-live="polite"></div>
+<div id="floaters" aria-hidden="true"></div>
+<div id="mood-chip" class="mood" aria-hidden="true" hidden>
+  <span class="mood-name"></span>
+  <span class="mood-bar"><i></i></span>
+  <span class="mood-word"></span>
+</div>
+
+<div id="died" class="died" role="dialog" aria-modal="true" aria-labelledby="died-title" hidden>
+  <div class="died-inner">
+    <p class="died-title" id="died-title">You died</p>
+    <p class="died-cause">Eaten by Ignis</p>
+    <p class="died-line" id="died-line"></p>
+    <button type="button" class="btn btn-glass" id="died-again">Try again</button>
+  </div>
+</div>
+
+<script src="js/page.js" defer></script>
+</body>
+</html>
