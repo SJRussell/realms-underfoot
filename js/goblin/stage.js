@@ -6,6 +6,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
+import { JawCurves } from "./jaw.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { Goblin } from "./goblin.js";
 import { Ignis } from "./ignis.js";
@@ -41,6 +42,7 @@ export class Stage {
     const draco = new DRACOLoader(); draco.setDecoderPath(url("vendor/three/addons/libs/draco/gltf/")); this.loader.setDRACOLoader(draco);
 
     this.T = null; this.B = null; this.ignis = null; this.egg = null; this.chest = null; this.motes = null;
+    this.curves = new JawCurves(); this.curves.load(url("assets/audio/jaw-curves.json"));
     this.perches = [...document.querySelectorAll("[data-perch]")].filter((el) => el.dataset.perch !== "end");
     this.cornerPerch = document.getElementById("corner-perch");
     this.bruiserPerch = document.querySelector("[data-perch-bruiser]");
@@ -96,7 +98,7 @@ export class Stage {
     }
   }
 
-  async gltf(name) { const g = await this.loader.loadAsync(url("assets/models/" + name + ".glb")); g.scene.traverse((o) => { if (o.isMesh && o.material) { o.material.envMapIntensity = 1; } }); return g.scene; }
+  async gltf(name) { const g = await this.loader.loadAsync(url("assets/models/" + name + ".glb")); g.scene.traverse((o) => { if (o.isMesh && o.material) { o.material.envMapIntensity = o.material.name === "MouthInside" ? 0 : 1; } }); return g.scene; }   // the inside of a goblin's mouth is dark and matte, as in the game: it reflects nothing
 
   /** The rock thrower first: he is the page. Everything else follows. */
   async loadFirst() {
@@ -161,6 +163,11 @@ export class Stage {
   set(who, key, value) { const g = this[who]; if (g) g.want[key] = value; }
   lookAway(who, seconds) { const g = this[who]; if (g && !this.reduced) g.lookAway = seconds; }
   talking(who, ms) { const g = this[who]; if (g && !this.reduced) g.say(ms); }
+  /** Whose jaw moves, and with what: the clip's id, the words, the playing clip if sound is on, and when the words appeared.
+      The other goblin's jaw shuts. With no `who`, both shut. */
+  mouth(who, id, words, audio, t0) {
+    for (const k of ["T", "B"]) { const g = this[k]; if (g) g.mouth(k === who && !this.reduced ? this.curves.get(id, words) : null, audio, t0); }
+  }
   flee(who, ms, back) {
     const g = this[who]; if (!g || g.gone) return;
     const s = g.screen(this.env);

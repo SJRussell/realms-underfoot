@@ -74,7 +74,7 @@ export class Brain {
     if (this.site.prefs.sound && !voiced(bit)) { bit = LINES[key].find(voiced); if (!bit) return false; }
     if (cool) this.cool[key] = t + cool * 1000;
     this.said.add(key);
-    if (this.current) { this.current.cancelled = true; this.voice.stopClip(); }
+    if (this.current) { this.current.cancelled = true; this.voice.stopClip(); if (this.stage) this.stage.mouth(null); }
     const job = { p, key, start: t, cancelled: false };
     this.current = job;
     this.run(bit, job);
@@ -87,12 +87,18 @@ export class Brain {
       this.voice.show(who, words);
       this.log.push({ key: job.key, who, words, at: Math.round(now()) });
       if (this.stage) this.stage.talking(who, est);
-      const t0 = now();
-      const played = await Promise.race([this.voice.speak(clipFor(who, words, clip)), wait(est + 6000).then(() => false)]);
+      const t0 = now(), id = clipFor(who, words, clip);
+      const heard = this.voice.speak(id);
+      // His jaw follows the clip's own clock if it is playing, and the time since the words appeared if not.
+      const aloud = this.site.prefs.sound && id ? this.voice.playing : null;
+      if (this.stage) this.stage.mouth(who, id, words, aloud, t0);
+      const played = await Promise.race([heard, wait(est + 6000).then(() => false)]);
       if (job.cancelled) return;
+      if (aloud && !played && this.stage) this.stage.mouth(who, id, words, null, t0);   // the clip would not play
       const left = (played ? 1300 : est) - (now() - t0);
       if (left > 0) await wait(left);
       if (job.cancelled) return;
+      if (this.stage) this.stage.mouth(null);
       if (played && this.stage) this.stage.talking(who, 0);
       await wait(260);
     }
@@ -102,7 +108,7 @@ export class Brain {
     this.voice.clear();
     this.current = null; this.lastEnd = now();
   }
-  hush() { if (this.current) this.current.cancelled = true; this.current = null; this.voice.silence(); this.lastEnd = now(); }
+  hush() { if (this.current) this.current.cancelled = true; this.current = null; this.voice.silence(); if (this.stage) this.stage.mouth(null); this.lastEnd = now(); }
 
   // ------------------------------------------------------------------ start
   start() {

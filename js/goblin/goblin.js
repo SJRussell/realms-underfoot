@@ -5,6 +5,7 @@
  */
 import * as THREE from "three";
 import { Rig, damp, clamp, ease } from "./rig.js";
+import { JAW, jawStep } from "./jaw.js";
 
 // The pipeline's bone numbering is the same for both goblins (config/goblin-pilot-*-bones.json).
 const BONES = {
@@ -13,6 +14,7 @@ const BONES = {
   rShoulder: "bone_25", rArm: "bone_26", rFore: "bone_27", rHand: "bone_28",
   lThigh: "bone_44", lShin: "bone_45", lFoot: "bone_46", lToe: "bone_47",
   rThigh: "bone_48", rShin: "bone_49", rFoot: "bone_50", rToe: "bone_51",
+  jaw: "jaw",   // added by the game under the head bone; its pivot is the jaw hinge
 };
 const FEET = ["lFoot", "lToe", "rFoot", "rToe"];
 const v = new THREE.Vector3();
@@ -48,6 +50,8 @@ export class Goblin {
     this.yaw = 0; this.lookYaw = 0; this.lookPitch = 0;
     this.air = 0; this.crouch = 0; this.lift = 0;
     this.talk = 0; this.talkUntil = 0; this.talkArm = 1;
+    this.line = null;                // the line he is saying, for his jaw: { curve, audio, t0 }
+    this.jaw = 0;                    // 0 shut, 1 fully open
     this.react = null;
     this.level = { sleep: 0, cower: 0, lookUp: 0, lean: 0, bored: 0 };
     this.want = { sleep: 0, cower: 0, lookUp: 0, lean: 0, bored: 0 };
@@ -72,6 +76,8 @@ export class Goblin {
   }
   goTo(dest) { this.dest = dest; if (dest && dest.el && dest.el === this.on && !this.hop) this.dest = null; }
   say(ms) { this.talkUntil = performance.now() + ms; this.talkArm = Math.random() < 0.5 ? 1 : -1; }
+  /** The line his jaw follows: its loudness curve, the playing clip if sound is on, and when the words appeared. Null shuts it. */
+  mouth(curve, audio, t0) { this.line = curve ? { curve, audio: audio || null, t0 } : null; }
   do(type, opts = {}) { this.react = { type, t: 0, dur: opts.dur || DURATION[type] || 1, dir: opts.dir || (Math.random() < 0.5 ? -1 : 1) }; }
 
   screen(env) { return { x: this.pos.x - env.sx, y: this.pos.y - env.sy }; }
@@ -153,6 +159,7 @@ export class Goblin {
     for (const k in L) L[k] = damp(L[k], W[k], k === "cower" ? 7 : 3, dt);
     const talking = now < this.talkUntil ? 1 : 0;
     this.talk = damp(this.talk, talking, talking ? 12 : 6, dt);
+    this.jaw = env.reduced ? 0 : jawStep(this.jaw, this.line, now, dt);
 
     // ---- where he looks ----
     const s = this.screen(env);
@@ -225,6 +232,8 @@ export class Goblin {
       const O = this.talkArm > 0 ? "l" : "r";
       g.add(O + "Fore", -e * (14 + n2 * 10));
     }
+    // the jaw, on top of everything else: a turn about the hinge, the way a nod turns the head
+    if (this.jaw > 0) g.add("jaw", this.jaw * JAW.degrees);
     // reactions
     if (wave) { g.add("rArm", -10 * wave, 0, -112 * wave); g.add("rFore", -8 * wave, 0, (-18 + Math.sin(t * 12) * 30) * wave); g.add("head", 0, 0, 7 * wave); g.add("spine", 0, 0, 4 * wave); }
     if (shrug) { g.add("lShoulder", 0, 0, 16 * shrug); g.add("rShoulder", 0, 0, -16 * shrug); g.add("lArm", 0, 0, 14 * shrug); g.add("rArm", 0, 0, -14 * shrug); g.add("lFore", -72 * shrug, 34 * shrug); g.add("rFore", -72 * shrug, -34 * shrug); g.add("head", -5 * shrug, 0, 10 * shrug); }
