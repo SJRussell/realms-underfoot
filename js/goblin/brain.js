@@ -9,6 +9,11 @@
  * typing are allowed.
  */
 import { LINES, DEATH_LINES } from "./lines.js";
+import { SITE_CLIPS } from "./clips.js";
+
+// The clip for a line: the game's own clip named in lines.js, or the one recorded for this page.
+const clipFor = (who, words, clip) => clip || SITE_CLIPS[who + "|" + words];
+const voiced = (bit) => bit.every(([who, words, clip]) => clipFor(who, words, clip));
 
 const ABOUT_TYPING = new Set(["typing", "typingAt", "deleting", "submit", "submitBad"]);
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -64,6 +69,8 @@ export class Brain {
     }
     let bit = this.pick(key); if (!bit) return false;
     if (first) bit = LINES[key][0];
+    // With sound on, a line is only said if every part of it has a voice. Look for one that has.
+    if (this.site.prefs.sound && !voiced(bit)) { bit = LINES[key].find(voiced); if (!bit) return false; }
     if (cool) this.cool[key] = t + cool * 1000;
     this.said.add(key);
     if (this.current) { this.current.cancelled = true; this.voice.stopClip(); }
@@ -80,7 +87,7 @@ export class Brain {
       this.log.push({ key: job.key, who, words, at: Math.round(now()) });
       if (this.stage) this.stage.talking(who, est);
       const t0 = now();
-      const played = await Promise.race([this.voice.speak(clip), wait(est + 6000).then(() => false)]);
+      const played = await Promise.race([this.voice.speak(clipFor(who, words, clip)), wait(est + 6000).then(() => false)]);
       if (job.cancelled) return;
       const left = (played ? 1300 : est) - (now() - t0);
       if (left > 0) await wait(left);
