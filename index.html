@@ -112,12 +112,17 @@
       <h2>See it</h2>
       <div class="perch" data-perch="video" aria-hidden="true"></div>
     </div>
-    <!-- PLACEHOLDER: VIDEO. One gameplay clip goes here. Stewart chooses it. No clip may show a stranger. -->
-    <div class="card video-slot" data-placeholder="video">
-      <div class="video-frame">
-        <span class="reticle" aria-hidden="true"></span>
-        <p class="slot-title">Gameplay video</p>
-        <p class="slot-note">Not chosen yet. It goes here.</p>
+    <!-- The gameplay trailer Stewart chose on 23 November 2026. None of the video is fetched until the
+         visitor presses play. No clip here may show a stranger. -->
+    <div class="card video-slot">
+      <video class="trailer" id="trailer" controls playsinline preload="none" width="720" height="1488"
+             poster="assets/video/realms-underfoot-trailer-poster.jpg" aria-label="Gameplay trailer, 42 seconds">
+        <source src="assets/video/realms-underfoot-trailer.mp4" type="video/mp4">
+        <a href="assets/video/realms-underfoot-trailer.mp4">Watch the gameplay trailer (MP4, 42 seconds)</a>
+      </video>
+      <div class="video-note">
+        <p class="slot-title">Gameplay trailer</p>
+        <p class="slot-note">42 seconds, filmed on a phone and cut together from a few runs.</p>
       </div>
     </div>
     <div class="egg-spot egg-spot-right" data-egg-spot="1" aria-hidden="true"></div>

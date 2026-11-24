@@ -117,6 +117,13 @@
     });
   }
 
+  // ----- the trailer: the goblins keep quiet while it plays -----
+  var trailer = document.getElementById("trailer");
+  if (trailer) {
+    trailer.addEventListener("play", function () { emit("site:video", { playing: true }); });
+    ["pause", "ended"].forEach(function (type) { trailer.addEventListener(type, function () { emit("site:video", { playing: false }); }); });
+  }
+
   // ----- sections ease in as they are reached -----
   var bands = document.querySelectorAll(".band");
   if ("IntersectionObserver" in window) {

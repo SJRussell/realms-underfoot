@@ -52,6 +52,7 @@ export class Brain {
     const t = now();
     if (!this.started || this.dead) return false;
     if (!this.site.prefs.talk) return false;
+    if (this.videoPlaying && key !== "videoPlay" && p < 3) return false; // not over the trailer
     if (this.typing() && !ABOUT_TYPING.has(key)) return false;
     if (once && this.said.has(key)) return false;
     if ((this.cool[key] || 0) > t) return false;
@@ -185,6 +186,7 @@ export class Brain {
 
     // switches
     on(document, "site:sound", (e) => { if (!e.detail.on) this.voice.stopClip(); this.say(e.detail.on ? "soundOn" : "soundOff", { p: 3 }); });
+    on(document, "site:video", (e) => { this.videoPlaying = !!e.detail.playing; if (this.videoPlaying) this.say("videoPlay", { p: 3, now: true }); });
     on(document, "site:talk", (e) => {
       if (e.detail.on) { this.say("talkOn", { p: 3 }); return; }
       this.say("talkOff", { p: 3 });

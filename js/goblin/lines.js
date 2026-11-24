@@ -166,8 +166,13 @@ export const LINES = {
     t("They forgot running away. That's the fifth one. That's mine."),
   ],
   zoneVideo: [
-    t("There's meant to be a moving picture there. Boss is still choosing."),
-    t("Nothing to see. Really. It's a rectangle."),
+    t("A moving picture! We're in it. That's my good side."),
+    t("Press the triangle. Go on. It's got a dragon in it."),
+  ],
+  // The visitor pressed play on the trailer. After this they keep quiet until it stops.
+  videoPlay: [
+    t("Shh! It's starting."),
+    [["T", "That's us! Look. That's us."], ["B", "Stop pointing."]],
   ],
   zoneUpdates: [
     t("Big secrets. We know all of them. We've forgotten most of them."),

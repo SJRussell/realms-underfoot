@@ -149,15 +149,16 @@ p { margin: 0 0 .9em; }
 .way p { margin: 8px 0 0; }
 .way:hover, .way:focus-visible { transform: translateY(-4px); border-color: var(--gold); }
 
-.video-slot { padding: 10px; }
-.video-frame { position: relative; aspect-ratio: 16 / 9; border-radius: 12px; display: grid; place-content: center; text-align: center; overflow: hidden;
-  border: 2px dashed var(--line); background:
-    repeating-linear-gradient(135deg, transparent 0 18px, var(--line-soft) 18px 19px), var(--slot); }
+.video-slot { padding: 14px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: clamp(16px, 3vw, 34px); align-items: center; width: fit-content; max-width: 100%; }
+/* The trailer is filmed upright on a phone, so the player is phone-shaped. */
+.trailer { display: block; height: min(72vh, 640px); width: auto; aspect-ratio: 720 / 1488; max-width: 100%; border-radius: 12px; background: #000; border: 2px solid var(--line-soft); }
+.video-note { max-width: 16em; }
+@media (max-width: 620px) {
+  .video-slot { grid-template-columns: 1fr; justify-items: center; text-align: center; width: auto; }
+  .trailer { height: auto; width: min(100%, 300px); }
+}
 .slot-title { font: 700 clamp(22px, 3vw, 30px)/1.1 var(--label); text-transform: uppercase; margin: 0 0 4px; }
 .slot-note { color: var(--muted); margin: 0; }
-.reticle { width: 74px; height: 74px; margin: 0 auto 14px; border: 3px solid var(--warn); border-radius: 50%; position: relative; opacity: .9; }
-.reticle::before, .reticle::after { content: ""; position: absolute; left: 50%; top: 50%; background: var(--gold-bright); transform: translate(-50%, -50%); }
-.reticle::before { width: 22px; height: 3px; } .reticle::after { width: 3px; height: 22px; }
 
 .signup-row { display: grid; grid-template-columns: minmax(0, 620px) minmax(160px, 1fr); gap: 18px; align-items: end; }
 .signup p:first-child { margin-top: 0; }
